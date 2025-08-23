@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 import * as bip39 from "bip39";
 import { Buffer } from "buffer";
+import WalletForm from "./components/WalletForm";
+import AddressLookup from "./components/AddressLookup";
+import WalletList from "./components/WalletList";
+import Header from "./components/Header";
+
 window.Buffer = Buffer;
 
 const WalletGenerator = () => {
@@ -293,353 +298,48 @@ const WalletGenerator = () => {
   };
 
   return (
-    <div style={{ maxWidth: 800, margin: "2rem auto", padding: "0 1rem" }}>
-      <div
-        style={{
-          background: "#222",
-          color: "#fff",
-          padding: "2rem",
-          borderRadius: "1rem",
-          marginBottom: "2rem",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "1rem",
-          }}
-        >
-          <h2>Wallet Generator</h2>
-          <div style={{ display: "flex", gap: "0.5rem" }}>
-            {wallets.length > 0 && (
-              <span
-                style={{
-                  fontSize: "0.9rem",
-                  color: "#4CAF50",
-                  backgroundColor: "#1a1a1a",
-                  padding: "0.25rem 0.5rem",
-                  borderRadius: "4px",
-                }}
-              >
-                {wallets.length} wallet{wallets.length !== 1 ? "s" : ""} saved
-              </span>
-            )}
-            {wallets.length > 0 && (
-              <button
-                type="button"
-                onClick={exportWallets}
-                style={{
-                  background: "#2196F3",
-                  color: "white",
-                  border: "none",
-                  padding: "0.5rem 1rem",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                  fontSize: "0.9rem",
-                }}
-              >
-                Export Wallets
-              </button>
-            )}
-            <label
-              style={{
-                background: "#4CAF50",
-                color: "white",
-                border: "none",
-                padding: "0.5rem 1rem",
-                borderRadius: "4px",
-                cursor: "pointer",
-                fontSize: "0.9rem",
-                display: "inline-block",
-              }}
-            >
-              Import Wallets
-              <input
-                type="file"
-                accept=".json"
-                onChange={importWallets}
-                style={{ display: "none" }}
-              />
-            </label>
-            <button
-              type="button"
-              onClick={clearAllData}
-              style={{
-                background: "#d32f2f",
-                color: "white",
-                border: "none",
-                padding: "0.5rem 1rem",
-                borderRadius: "4px",
-                cursor: "pointer",
-                fontSize: "0.9rem",
-              }}
-            >
-              Clear All Data
-            </button>
-          </div>
-        </div>
-        <form onSubmit={handleSubmit} style={{ marginBottom: "2rem" }}>
-          <div style={{ marginBottom: "1rem" }}>
-            <label>Seed Phrase (mnemonic):</label>
-            <br />
-            <input
-              type="text"
-              value={mnemonic}
-              onChange={(e) => setMnemonic(e.target.value)}
-              style={{ width: "100%", padding: "0.5rem" }}
-              required
-            />
-            <button
-              type="button"
-              onClick={generateMnemonic}
-              style={{ marginTop: "0.5rem" }}
-            >
-              Generate Mnemonic
-            </button>
-          </div>
-          <div style={{ marginBottom: "1rem" }}>
-            <label>Wallet Type:</label>
-            <br />
-            <select
-              value={walletType}
-              onChange={(e) => setWalletType(e.target.value)}
-              style={{ width: "100%", padding: "0.5rem" }}
-            >
-              <option value="both">Both Solana & Ethereum</option>
-              <option value="solana">Solana Only</option>
-              <option value="ethereum">Ethereum Only</option>
-            </select>
-          </div>
-          <div style={{ marginBottom: "1rem" }}>
-            <label>Number of Wallets:</label>
-            <br />
-            <input
-              type="number"
-              min={1}
-              max={20}
-              value={count}
-              onChange={(e) => setCount(e.target.value)}
-              style={{ width: "100%", padding: "0.5rem" }}
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={loading}
-            style={{ padding: "0.5rem 1rem" }}
-          >
-            {loading ? "Generating..." : "Generate Wallets"}
-          </button>
-        </form>
-        {error && (
-          <div style={{ color: "#f55", marginBottom: "1rem" }}>{error}</div>
-        )}
+    <div className="min-h-screen bg-gray-900 py-8">
+      <div className="max-w-4xl mx-auto px-4">
+        <Header
+          wallets={wallets}
+          exportWallets={exportWallets}
+          importWallets={importWallets}
+          clearAllData={clearAllData}
+        />
+
+        <WalletForm
+          mnemonic={mnemonic}
+          setMnemonic={setMnemonic}
+          count={count}
+          setCount={setCount}
+          walletType={walletType}
+          setWalletType={setWalletType}
+          loading={loading}
+          error={error}
+          handleSubmit={handleSubmit}
+          generateMnemonic={generateMnemonic}
+        />
+
+        <AddressLookup
+          addressToCheck={addressToCheck}
+          setAddressToCheck={setAddressToCheck}
+          addressType={addressType}
+          setAddressType={setAddressType}
+          accountInfo={accountInfo}
+          checkingAddress={checkingAddress}
+          addressError={addressError}
+          checkAddress={checkAddress}
+          detectAddressType={detectAddressType}
+        />
+
+        <WalletList
+          wallets={wallets}
+          revealedData={revealedData}
+          isVisible={isVisible}
+          toggleVisibility={toggleVisibility}
+          getWalletTypeColor={getWalletTypeColor}
+        />
       </div>
-
-      {/* Address Lookup Section */}
-      <div
-        style={{
-          background: "#222",
-          color: "#fff",
-          padding: "2rem",
-          borderRadius: "1rem",
-          marginBottom: "2rem",
-        }}
-      >
-        <h2>Address Lookup</h2>
-        <form onSubmit={checkAddress} style={{ marginBottom: "1rem" }}>
-          <div style={{ marginBottom: "1rem" }}>
-            <label>Address:</label>
-            <br />
-            <input
-              type="text"
-              value={addressToCheck}
-              onChange={(e) => {
-                const value = e.target.value;
-                setAddressToCheck(value);
-                if (value.length > 10) {
-                  const detectedType = detectAddressType(value);
-                  setAddressType(detectedType);
-                }
-              }}
-              placeholder="Enter Solana or Ethereum address"
-              style={{ width: "100%", padding: "0.5rem" }}
-            />
-          </div>
-          <div style={{ marginBottom: "1rem" }}>
-            <label>Address Type:</label>
-            <br />
-            <select
-              value={addressType}
-              onChange={(e) => setAddressType(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "0.5rem",
-                backgroundColor:
-                  addressType === "ethereum" ? "#627EEA" : "#9945FF",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-              }}
-            >
-              <option value="ethereum">Ethereum</option>
-              <option value="solana">Solana</option>
-            </select>
-            <div
-              style={{
-                marginTop: "0.5rem",
-                fontSize: "0.9rem",
-                color: "#ccc",
-                fontStyle: "italic",
-              }}
-            >
-              {addressType === "ethereum"
-                ? "Format: 0x..."
-                : "Format: Base58 string"}
-            </div>
-          </div>
-          <button
-            type="submit"
-            disabled={checkingAddress}
-            style={{ padding: "0.5rem 1rem" }}
-          >
-            {checkingAddress ? "Checking..." : "Check Address"}
-          </button>
-        </form>
-
-        {addressError && (
-          <div style={{ color: "#f55", marginBottom: "1rem" }}>
-            {addressError}
-          </div>
-        )}
-
-        {accountInfo && (
-          <div
-            style={{
-              background: "#333",
-              padding: "1rem",
-              borderRadius: "0.5rem",
-            }}
-          >
-            <h3>Account Information</h3>
-            <div style={{ marginBottom: "0.5rem" }}>
-              <strong>Address:</strong> <code>{accountInfo.address}</code>
-            </div>
-            <div style={{ marginBottom: "0.5rem" }}>
-              <strong>Balance:</strong> {accountInfo.balance}{" "}
-              {addressType === "solana" ? "SOL" : "ETH"}
-            </div>
-            {addressType === "ethereum" && (
-              <div style={{ marginBottom: "0.5rem" }}>
-                <strong>Transaction Count:</strong>{" "}
-                {accountInfo.transactionCount}
-              </div>
-            )}
-            {addressType === "solana" && (
-              <>
-                <div style={{ marginBottom: "0.5rem" }}>
-                  <strong>Lamports:</strong> {accountInfo.lamports}
-                </div>
-                <div style={{ marginBottom: "0.5rem" }}>
-                  <strong>Executable:</strong>{" "}
-                  {accountInfo.executable ? "Yes" : "No"}
-                </div>
-                {accountInfo.owner && (
-                  <div style={{ marginBottom: "0.5rem" }}>
-                    <strong>Owner:</strong> <code>{accountInfo.owner}</code>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Generated Wallets Section */}
-      {wallets.length > 0 && (
-        <div
-          style={{
-            background: "#222",
-            color: "#fff",
-            padding: "2rem",
-            borderRadius: "1rem",
-          }}
-        >
-          <h3>Generated Wallets</h3>
-          {wallets.map((w, idx) => (
-            <div
-              key={idx}
-              style={{
-                background: "#333",
-                marginBottom: "1rem",
-                padding: "1rem",
-                borderRadius: "0.5rem",
-                borderLeft: `4px solid ${getWalletTypeColor(w.type)}`,
-              }}
-            >
-              <div style={{ marginBottom: "0.5rem" }}>
-                <strong style={{ color: getWalletTypeColor(w.type) }}>
-                  {w.walletName}
-                </strong>
-              </div>
-              <div style={{ marginBottom: "0.5rem" }}>
-                <span>
-                  Public Key: <code>{w.publicKey}</code>
-                </span>
-              </div>
-              <div style={{ marginBottom: "0.5rem" }}>
-                <span>
-                  Private Key:{" "}
-                  <code>
-                    {isVisible[`${w.walletId}-privateKey`]
-                      ? revealedData[`${w.walletId}-privateKey`] || w.privateKey
-                      : w.privateKey}
-                  </code>
-                  <button
-                    onClick={() => toggleVisibility(w.walletId, "privateKey")}
-                    style={{
-                      marginLeft: "0.5rem",
-                      background: "none",
-                      border: "none",
-                      color: "#fff",
-                      cursor: "pointer",
-                      fontSize: "1.2rem",
-                    }}
-                  >
-                    {isVisible[`${w.walletId}-privateKey`] ? "👁️" : "👁️‍🗨️"}
-                  </button>
-                </span>
-              </div>
-              <div style={{ marginBottom: "0.5rem" }}>
-                <span>
-                  Secret Phrase:{" "}
-                  <code>
-                    {isVisible[`${w.walletId}-secretPhrase`]
-                      ? revealedData[`${w.walletId}-secretPhrase`] ||
-                        w.secretPhrase
-                      : w.secretPhrase}
-                  </code>
-                  <button
-                    onClick={() => toggleVisibility(w.walletId, "secretPhrase")}
-                    style={{
-                      marginLeft: "0.5rem",
-                      background: "none",
-                      border: "none",
-                      color: "#fff",
-                      cursor: "pointer",
-                      fontSize: "1.2rem",
-                    }}
-                  >
-                    {isVisible[`${w.walletId}-secretPhrase`] ? "👁️" : "👁️‍🗨️"}
-                  </button>
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 };
