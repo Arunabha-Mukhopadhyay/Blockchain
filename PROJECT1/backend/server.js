@@ -15,19 +15,16 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Store generated wallets temporarily (in production, use a proper database)
 let generatedWallets = [];
 
-// Initialize connections
 const solanaConnection = new Connection("https://api.mainnet-beta.solana.com");
 const ethereumProvider = new ethers.JsonRpcProvider("https://cloudflare-eth.com");
 
-// Mask sensitive data
 const maskData = (data) => {
   return "•".repeat(Math.min(data.length, 20)) + (data.length > 20 ? "..." : "");
 };
 
-// Generate Solana wallet
+// solana wallet:
 const generateSolanaWallet = (seed, index) => {
   const path = `m/44'/501'/${index}'/0'`;
   const derivedSeed = derivePath(path, seed.toString("hex")).key;
@@ -47,7 +44,7 @@ const generateSolanaWallet = (seed, index) => {
   };
 };
 
-// Generate Ethereum wallet
+//ethreum wallet:
 const generateEthereumWallet = (mnemonic, index) => {
   const path = `m/44'/60'/0'/0/${index}`;
   const wallet = ethers.HDNodeWallet.fromPhrase(mnemonic, path);
@@ -64,7 +61,6 @@ const generateEthereumWallet = (mnemonic, index) => {
   };
 };
 
-// Body: { mnemonic: string, count: number, type: 'solana' | 'ethereum' | 'both' }
 app.post("/api/generate-wallets", (req, res) => {
   const { mnemonic, count, type = "both" } = req.body;
   if (!mnemonic || !count || count < 1) {
@@ -87,7 +83,6 @@ app.post("/api/generate-wallets", (req, res) => {
       }
     }
     
-    // Store the actual sensitive data temporarily
     generatedWallets = wallets.map(w => ({
       ...w,
       actualPrivateKey: w.actualPrivateKey,
@@ -101,7 +96,8 @@ app.post("/api/generate-wallets", (req, res) => {
   }
 });
 
-// Body: { walletId: string, field: 'privateKey' | 'secretPhrase' }
+
+
 app.post("/api/reveal-wallet-data", (req, res) => {
   const { walletId, field } = req.body;
   
@@ -130,7 +126,7 @@ app.post("/api/reveal-wallet-data", (req, res) => {
   });
 });
 
-// Body: { address: string, type: 'solana' | 'ethereum' }
+
 app.post("/api/check-address", async (req, res) => {
   const { address, type } = req.body;
   
@@ -152,7 +148,7 @@ app.post("/api/check-address", async (req, res) => {
         
         accountInfo = {
           address: address,
-          balance: balance / 1e9, // Convert lamports to SOL
+          balance: balance / 1e9, 
           balanceRaw: balance,
           executable: accountInfoData?.executable || false,
           owner: accountInfoData?.owner?.toBase58() || null,
@@ -177,7 +173,7 @@ app.post("/api/check-address", async (req, res) => {
           balance: ethers.formatEther(balance),
           balanceRaw: balance.toString(),
           transactionCount: transactionCount,
-          isContract: false // Would need additional check for contract
+          isContract: false 
         };
       } catch (err) {
         console.error("Ethereum address check error:", err);
