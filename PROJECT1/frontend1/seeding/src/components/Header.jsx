@@ -46,3 +46,5 @@ const Header = ({ wallets, exportWallets, importWallets, clearAllData }) => {
 };
 
 export default Header;
+
+
