@@ -21,7 +21,7 @@ import { SendTransaction } from './SendTrandsaction';
 
 function App() {
   const [count, setCount] = useState(0)
-  const wallets = [new PhantomWalletAdapter()]; // ✅ Add at least one wallet adapter
+  const wallets = [new PhantomWalletAdapter()]; 
 
 
   return (
