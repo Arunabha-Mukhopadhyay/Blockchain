@@ -27,7 +27,8 @@ export function SendTransaction() {
     })
   );
 
-    await wallet.sendTransaction(transaction,connection);
+    const sign =  await wallet.sendTransaction(transaction,connection);
+    await connection.confirmTransaction(sign);
     alert(`ampount ${amount} SOL sent to ${reciptAdd}`);
   }
 
