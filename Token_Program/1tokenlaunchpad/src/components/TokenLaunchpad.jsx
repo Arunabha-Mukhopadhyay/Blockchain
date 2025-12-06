@@ -2,19 +2,27 @@ import { Keypair, SystemProgram, Transaction } from "@solana/web3.js";
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { MINT_SIZE, TOKEN_2022_PROGRAM_ID, createMintToInstruction, createAssociatedTokenAccountInstruction, getMintLen, createInitializeMetadataPointerInstruction, createInitializeMintInstruction, TYPE_SIZE, LENGTH_SIZE, ExtensionType, mintTo, getOrCreateAssociatedTokenAccount, getAssociatedTokenAddressSync } from "@solana/spl-token"
 import { createInitializeInstruction, pack } from '@solana/spl-token-metadata';
+import { useState } from "react";
 
 
 export function TokenLaunchpad() {
     const { connection } = useConnection();
     const wallet = useWallet();
 
+    const [name,setName] = useState("");
+    const [symbol,setSymbol] = useState("");
+    const [imageURL,setImageURL] = useState("");
+    const [supply,setSupply] = useState(0);
+
     async function createToken() {
+        if (!wallet.publicKey) return alert("Connect wallet first!");
+
         const mintKeypair = Keypair.generate();
         const metadata = {
             mint: mintKeypair.publicKey,
-            name: 'KIRA',
-            symbol: 'KIR    ',
-            uri: 'https://imgs.search.brave.com/cN1sjAmVs_yyTo3UWA3sAUad6GzDMyp9EmiMOf2M4qs/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9sb2dv/cy13b3JsZC5uZXQv/d3AtY29udGVudC91/cGxvYWRzLzIwMjAv/MTIvQmF0bWFuLUxv/Z28tMjAxNi0yMDE4/LTcwMHgzOTQucG5n',
+            name,
+            symbol,
+            uri:imageURL,
             additionalMetadata: [],
         };
 
@@ -37,9 +45,9 @@ export function TokenLaunchpad() {
                 programId: TOKEN_2022_PROGRAM_ID,
                 mint: mintKeypair.publicKey,
                 metadata: mintKeypair.publicKey,
-                name: metadata.name,
-                symbol: metadata.symbol,
-                uri: metadata.uri,
+                name,
+                symbol,
+                uri:imageURL,
                 mintAuthority: wallet.publicKey,
                 updateAuthority: wallet.publicKey,
             }),
@@ -74,8 +82,10 @@ export function TokenLaunchpad() {
 
         await wallet.sendTransaction(transaction2, connection);
 
+        const amount = Number(supply) * 10 ** 9;
+
         const transaction3 = new Transaction().add(
-            createMintToInstruction(mintKeypair.publicKey, associatedToken, wallet.publicKey, 1000000000, [], TOKEN_2022_PROGRAM_ID)
+            createMintToInstruction(mintKeypair.publicKey, associatedToken, wallet.publicKey, amount, [], TOKEN_2022_PROGRAM_ID)
         );
 
         await wallet.sendTransaction(transaction3, connection);
@@ -83,20 +93,20 @@ export function TokenLaunchpad() {
         console.log("Minted!")
     }
 
-    return  <div style={{
-        height: '100vh',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        flexDirection: 'column'
-    }}>
-        <h1>Solana Token Launchpad</h1>
-        <input className='inputText' type='text' placeholder='Name'></input> <br />
-        <input className='inputText' type='text' placeholder='Symbol'></input> <br />
-        <input className='inputText' type='text' placeholder='Image URL'></input> <br />
-        <input className='inputText' type='text' placeholder='Initial Supply'></input> <br />
-        <button onClick={createToken} className='btn'>Create a token</button>
-    </div>
+    return (
+        <div style={{ textAlign:"center", color:"white", marginTop:80 }}>
+            <h1>Solana Token Launchpad</h1><br/>
+
+            <input placeholder="Name" onChange={(e)=>setName(e.target.value)} /><br/><br/>
+            <input placeholder="Symbol" onChange={(e)=>setSymbol(e.target.value)} /><br/><br/>
+            <input placeholder="Image URL" onChange={(e)=>setImageURL(e.target.value)} /><br/><br/>
+            <input placeholder="Initial Supply" type="number" onChange={(e)=>setSupply(e.target.value)} /><br/><br/>
+
+            <button onClick={createToken} style={{padding:"14px 28px", fontSize:"17px"}}>
+                🚀 Create Token
+            </button>
+        </div>
+    )
 }
 
 
