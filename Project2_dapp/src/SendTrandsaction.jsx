@@ -23,7 +23,7 @@ export function SendTransaction() {
     SystemProgram.transfer({
       fromPubkey: wallet.publicKey,
       toPubkey: new PublicKey(reciptAdd),
-      lamports: amount * LAMPORTS_PER_SOL,
+      lamports: parseFloat(amount * LAMPORTS_PER_SOL),
     })
   );
 
