@@ -11,8 +11,14 @@ export function Airdrop() {
 
   async function sendAirdrop() {
     try{
-      const amount = document.getElementById("amount").value;
-      await connection.requestAirdrop(wallet.publicKey,amount * 1000000000)
+      if (!wallet.publicKey) return alert("Connect wallet first!");
+
+      console.log("RPC endpoint:", connection.rpcEndpoint);
+
+      const amount = parseFloat(document.getElementById("amount").value);
+      if (!amount || amount <= 0) return alert("Enter a valid amount");
+
+      await connection.requestAirdrop(wallet.publicKey,amount * 1000000000);
       alert(`Airdrop ${amount} Successful`);
     } catch(err){
       console.error(err);

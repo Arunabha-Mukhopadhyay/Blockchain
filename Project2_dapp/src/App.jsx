@@ -25,7 +25,7 @@ function App() {
 
 
   return (
-    <ConnectionProvider endpoint={"https://solana-devnet.g.alchemy.com/v2/HXvqopb56JiSzfHc9WqgC"}>
+    <ConnectionProvider endpoint={"https://api.devnet.solana.com"}>
         <WalletProvider wallets={wallets} autoConnect>
               <WalletModalProvider>
                 <WalletMultiButton></WalletMultiButton>
