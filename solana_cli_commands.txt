@@ -1,0 +1,30 @@
+spl-token create-token
+spl-token create-account <TOKEN_MINT_ADDRESS>
+spl-token mint <TOKEN_MINT_ADDRESS> <AMOUNT> <RECIPIENT_TOKEN_ACCOUNT_ADDRESS>
+
+// TO REVOKE THE MINT AUTHORITY:
+spl-token authorize <TOKEN_MINT_ADDRESS> mint --disable     // mint authority set to null
+// TO CHANGE THE MINT AUTHORITY:
+spl-token authorize <TOKEN_MINT_ADDRESS> mint <NEW_MINT_AUTHORITY_ADDRESS>
+
+// TO REVOKE THE FREEZE AUTHORITY:
+spl-token authorize <TOKEN_MINT_ADDRESS> freeze --disable   // freeze authority set to null
+// TO CHANGE THE FREEZE AUTHORITY:
+spl-token authorize <TOKEN_MINT_ADDRESS> freeze <NEW_FREEZE_AUTHORITY_ADDRESS>
+
+SAME GOES FOR UPDATE AUTHORITY:
+
+spl-token transfer <TOKEN_MINT_ADDRESS> <AMOUNT> <RECIPIENT_TOKEN_ACCOUNT_ADDRESS>
+spl-token balance <TOKEN_MINT_ADDRESS> [TOKEN_ACCOUNT_ADDRESS]
+
+
+solana TOKEN_MINT_ADDRESS
+solana rent <AMOUNT_IN_SOL>
+solana transfer <RECIPIENT_ADDRESS> <AMOUNT_IN_SOL>
+solana balance
+solana airdrop <AMOUNT_IN_SOL> [RECIPIENT_ADDRESS]
+
+solana-keygen new --outfile <KEYPAIR_FILEPATH>
+solana config get
+solana config set --keypair <KEYPAIR_FILEPATH>
+solana config set --url <RPC_ENDPOINT_URL>
