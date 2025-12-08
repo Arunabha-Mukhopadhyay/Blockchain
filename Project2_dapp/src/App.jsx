@@ -17,7 +17,8 @@ import '@solana/wallet-adapter-react-ui/styles.css';
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets';
 import { useState } from 'react'
 import './App.css'
-import { SendTransaction } from './SendTrandsaction';
+import { SendTransaction } from './SendTransaction';
+import SignMessage from './SignMessage';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -34,6 +35,7 @@ function App() {
                   <Airdrop></Airdrop>
                   <h1>send transaction</h1>
                   <SendTransaction></SendTransaction>
+                  <SignMessage/>
               </WalletModalProvider>
         </WalletProvider>
     </ConnectionProvider>
