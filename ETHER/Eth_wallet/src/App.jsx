@@ -43,7 +43,7 @@ function Address() {
   return (
     <>
       <div>Your address: {address}</div>
-      <div>Your balance: {balance?.formatted} {balance?.symbol}</div>
+      <div>Your balance: {balance?.data?.formatted} {balance?.symbol}</div>
       <button onClick={()=>disconnect()}>Disconnected</button>
     </>
   )
