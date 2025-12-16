@@ -1,4 +1,4 @@
-import { createAssociatedTokenAccountInstruction, createMint, getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { createAssociatedTokenAccountInstruction, createMint, getAssociatedTokenAddress, TOKEN_2022_PROGRAM_ID } from '@solana/spl-token';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 import { Transaction } from '@solana/web3.js';
 import React from 'react'
@@ -13,7 +13,7 @@ export function MintToken({mintAddress,onDone}) {
       mintAddress,
       wallet.publicKey,
       false,
-      TOKEN_PROGRAM_ID
+      TOKEN_2022_PROGRAM_ID
     );
 
     const transaction = new Transaction().add(
@@ -22,14 +22,14 @@ export function MintToken({mintAddress,onDone}) {
         associatedToken,
         wallet.publicKey,
         mintAddress,
-        TOKEN_PROGRAM_ID
+        TOKEN_2022_PROGRAM_ID
       )
     )
 
     await wallet.sendTransaction(transaction,connection);
 
     const mintTransaction = new Transaction().add(
-      createMintToInstruction(mintAddress, associatedToken, wallet.publicKey, 1000000000, [], TOKEN_PROGRAM_ID)
+      createMintToInstruction(mintAddress, associatedToken, wallet.publicKey, 1000000000, [], TOKEN_2022_PROGRAM_ID)
     )
 
     await wallet.sendTransaction(mintTransaction, connection);
@@ -39,7 +39,7 @@ export function MintToken({mintAddress,onDone}) {
 
   return <div>
     <input type="text"></input>
-    <button onClick={mint}>Mint tokens</button>
+    <button onClick={mintToken}>Mint tokens</button>
   </div>
 }
 

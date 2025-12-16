@@ -1,103 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import * as bip39 from "bip39";
 import { Buffer } from "buffer";
-import WalletForm from "./components/WalletForm";
-import AddressLookup from "./components/AddressLookup";
-import WalletList from "./components/WalletList";
-import Header from "./components/Header";
-
 window.Buffer = Buffer;
 
 const WalletGenerator = () => {
   const [mnemonic, setMnemonic] = useState("");
   const [count, setCount] = useState(1);
-  const [walletType, setWalletType] = useState("both");
   const [wallets, setWallets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [revealedData, setRevealedData] = useState({});
   const [isVisible, setIsVisible] = useState({});
-
-  // Address lookup state
-  const [addressToCheck, setAddressToCheck] = useState("");
-  const [addressType, setAddressType] = useState("ethereum");
-  const [accountInfo, setAccountInfo] = useState(null);
-  const [checkingAddress, setCheckingAddress] = useState(false);
-  const [addressError, setAddressError] = useState("");
-
-  // Load wallets from localStorage on component mount
-  useEffect(() => {
-    const savedWallets = localStorage.getItem("generatedWallets");
-    const savedMnemonic = localStorage.getItem("savedMnemonic");
-    const savedRevealedData = localStorage.getItem("revealedData");
-    const savedVisibility = localStorage.getItem("walletVisibility");
-
-    if (savedWallets) {
-      try {
-        setWallets(JSON.parse(savedWallets));
-      } catch (err) {
-        console.error("Error loading wallets from localStorage:", err);
-      }
-    }
-
-    if (savedMnemonic) {
-      setMnemonic(savedMnemonic);
-    }
-
-    if (savedRevealedData) {
-      try {
-        setRevealedData(JSON.parse(savedRevealedData));
-      } catch (err) {
-        console.error("Error loading revealed data from localStorage:", err);
-      }
-    }
-
-    if (savedVisibility) {
-      try {
-        setIsVisible(JSON.parse(savedVisibility));
-      } catch (err) {
-        console.error("Error loading visibility from localStorage:", err);
-      }
-    }
-  }, []);
-
-  // Save wallets to localStorage whenever wallets change
-  useEffect(() => {
-    if (wallets.length > 0) {
-      localStorage.setItem("generatedWallets", JSON.stringify(wallets));
-    }
-  }, [wallets]);
-
-  // Save mnemonic to localStorage
-  useEffect(() => {
-    if (mnemonic) {
-      localStorage.setItem("savedMnemonic", mnemonic);
-    }
-  }, [mnemonic]);
-
-  // Save revealed data to localStorage
-  useEffect(() => {
-    if (Object.keys(revealedData).length > 0) {
-      localStorage.setItem("revealedData", JSON.stringify(revealedData));
-    }
-  }, [revealedData]);
-
-  // Save visibility state to localStorage
-  useEffect(() => {
-    if (Object.keys(isVisible).length > 0) {
-      localStorage.setItem("walletVisibility", JSON.stringify(isVisible));
-    }
-  }, [isVisible]);
-
-  // Auto-detect address type based on format
-  const detectAddressType = (address) => {
-    if (address.startsWith("0x") && address.length === 42) {
-      return "ethereum";
-    } else if (address.length >= 32 && address.length <= 44) {
-      return "solana";
-    }
-    return addressType; // Keep current type if can't detect
-  };
 
   // Generate a random mnemonic
   const generateMnemonic = () => {
@@ -149,11 +62,7 @@ const WalletGenerator = () => {
       const res = await fetch("http://localhost:3000/api/generate-wallets", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mnemonic,
-          count: Number(count),
-          type: walletType,
-        }),
+        body: JSON.stringify({ mnemonic, count: Number(count) }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -167,179 +76,128 @@ const WalletGenerator = () => {
     setLoading(false);
   };
 
-  // Check address information
-  const checkAddress = async (e) => {
-    e.preventDefault();
-    if (!addressToCheck.trim()) {
-      setAddressError("Please enter an address");
-      return;
-    }
-
-    setCheckingAddress(true);
-    setAddressError("");
-    setAccountInfo(null);
-
-    try {
-      const res = await fetch("http://localhost:3000/api/check-address", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          address: addressToCheck.trim(),
-          type: addressType,
-        }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setAccountInfo(data.accountInfo);
-      } else {
-        setAddressError(data.error || "Error checking address");
-      }
-    } catch (err) {
-      setAddressError("Network error");
-    }
-    setCheckingAddress(false);
-  };
-
-  const getWalletTypeColor = (type) => {
-    switch (type) {
-      case "solana":
-        return "#9945FF";
-      case "ethereum":
-        return "#627EEA";
-      default:
-        return "#666";
-    }
-  };
-
-  // Clear all stored data
-  const clearAllData = () => {
-    if (
-      window.confirm(
-        "Are you sure you want to clear all stored wallets and data? This action cannot be undone."
-      )
-    ) {
-      localStorage.removeItem("generatedWallets");
-      localStorage.removeItem("savedMnemonic");
-      localStorage.removeItem("revealedData");
-      localStorage.removeItem("walletVisibility");
-
-      setWallets([]);
-      setMnemonic("");
-      setRevealedData({});
-      setIsVisible({});
-      setError("");
-
-      alert("All data has been cleared!");
-    }
-  };
-
-  // Export wallets as JSON
-  const exportWallets = () => {
-    if (wallets.length === 0) {
-      alert("No wallets to export!");
-      return;
-    }
-
-    const exportData = {
-      mnemonic: mnemonic,
-      wallets: wallets,
-      timestamp: new Date().toISOString(),
-      revealedData: revealedData,
-    };
-
-    const dataStr = JSON.stringify(exportData, null, 2);
-    const dataBlob = new Blob([dataStr], { type: "application/json" });
-    const url = URL.createObjectURL(dataBlob);
-
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `wallets_${new Date().toISOString().split("T")[0]}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-
-    alert("Wallets exported successfully!");
-  };
-
-  // Import wallets from JSON
-  const importWallets = (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const importData = JSON.parse(e.target.result);
-
-        if (importData.wallets && Array.isArray(importData.wallets)) {
-          setWallets(importData.wallets);
-          if (importData.mnemonic) {
-            setMnemonic(importData.mnemonic);
-          }
-          if (importData.revealedData) {
-            setRevealedData(importData.revealedData);
-          }
-          alert(
-            `Successfully imported ${importData.wallets.length} wallet(s)!`
-          );
-        } else {
-          alert("Invalid wallet file format!");
-        }
-      } catch (err) {
-        console.error("Error importing wallets:", err);
-        alert("Error importing wallets. Please check the file format.");
-      }
-    };
-    reader.readAsText(file);
-
-    // Reset the input
-    event.target.value = "";
-  };
-
   return (
-    <div className="min-h-screen bg-gray-900 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        <Header
-          wallets={wallets}
-          exportWallets={exportWallets}
-          importWallets={importWallets}
-          clearAllData={clearAllData}
-        />
-
-        <WalletForm
-          mnemonic={mnemonic}
-          setMnemonic={setMnemonic}
-          count={count}
-          setCount={setCount}
-          walletType={walletType}
-          setWalletType={setWalletType}
-          loading={loading}
-          error={error}
-          handleSubmit={handleSubmit}
-          generateMnemonic={generateMnemonic}
-        />
-
-        <AddressLookup
-          addressToCheck={addressToCheck}
-          setAddressToCheck={setAddressToCheck}
-          addressType={addressType}
-          setAddressType={setAddressType}
-          accountInfo={accountInfo}
-          checkingAddress={checkingAddress}
-          addressError={addressError}
-          checkAddress={checkAddress}
-          detectAddressType={detectAddressType}
-        />
-
-        <WalletList
-          wallets={wallets}
-          revealedData={revealedData}
-          isVisible={isVisible}
-          toggleVisibility={toggleVisibility}
-          getWalletTypeColor={getWalletTypeColor}
-        />
-      </div>
+    <div
+      style={{
+        maxWidth: 600,
+        margin: "2rem auto",
+        background: "#222",
+        color: "#fff",
+        padding: "2rem",
+        borderRadius: "1rem",
+      }}
+    >
+      <h2>Wallet Generator</h2>
+      <form onSubmit={handleSubmit} style={{ marginBottom: "2rem" }}>
+        <div style={{ marginBottom: "1rem" }}>
+          <label>Seed Phrase (mnemonic):</label>
+          <br />
+          <input
+            type="text"
+            value={mnemonic}
+            onChange={(e) => setMnemonic(e.target.value)}
+            style={{ width: "100%", padding: "0.5rem" }}
+            required
+          />
+          <button
+            type="button"
+            onClick={generateMnemonic}
+            style={{ marginTop: "0.5rem" }}
+          >
+            Generate Mnemonic
+          </button>
+        </div>
+        <div style={{ marginBottom: "1rem" }}>
+          <label>Number of Wallets:</label>
+          <br />
+          <input
+            type="number"
+            min={1}
+            max={20}
+            value={count}
+            onChange={(e) => setCount(e.target.value)}
+            style={{ width: "100%", padding: "0.5rem" }}
+            required
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={loading}
+          style={{ padding: "0.5rem 1rem" }}
+        >
+          {loading ? "Generating..." : "Generate Wallets"}
+        </button>
+      </form>
+      {error && (
+        <div style={{ color: "#f55", marginBottom: "1rem" }}>{error}</div>
+      )}
+      {wallets.length > 0 && (
+        <div>
+          <h3>Generated Wallets</h3>
+          {wallets.map((w, idx) => (
+            <div
+              key={idx}
+              style={{
+                background: "#333",
+                marginBottom: "1rem",
+                padding: "1rem",
+                borderRadius: "0.5rem",
+              }}
+            >
+              <strong>{w.walletName}</strong>
+              <br />
+              <span>
+                Public Key: <code>{w.publicKey}</code>
+              </span>
+              <br />
+              <span>
+                Private Key:{" "}
+                <code>
+                  {isVisible[`${w.walletId}-privateKey`]
+                    ? revealedData[`${w.walletId}-privateKey`] || w.privateKey
+                    : w.privateKey}
+                </code>
+                <button
+                  onClick={() => toggleVisibility(w.walletId, "privateKey")}
+                  style={{
+                    marginLeft: "0.5rem",
+                    background: "none",
+                    border: "none",
+                    color: "#fff",
+                    cursor: "pointer",
+                    fontSize: "1.2rem",
+                  }}
+                >
+                  {isVisible[`${w.walletId}-privateKey`] ? "👁️" : "👁️‍🗨️"}
+                </button>
+              </span>
+              <br />
+              <span>
+                Secret Phrase:{" "}
+                <code>
+                  {isVisible[`${w.walletId}-secretPhrase`]
+                    ? revealedData[`${w.walletId}-secretPhrase`] ||
+                      w.secretPhrase
+                    : w.secretPhrase}
+                </code>
+                <button
+                  onClick={() => toggleVisibility(w.walletId, "secretPhrase")}
+                  style={{
+                    marginLeft: "0.5rem",
+                    background: "none",
+                    border: "none",
+                    color: "#fff",
+                    cursor: "pointer",
+                    fontSize: "1.2rem",
+                  }}
+                >
+                  {isVisible[`${w.walletId}-secretPhrase`] ? "👁️" : "👁️‍🗨️"}
+                </button>
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
