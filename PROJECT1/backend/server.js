@@ -15,18 +15,14 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-/* ------------------ Connections ------------------ */
 const solanaConnection = new Connection("https://api.mainnet-beta.solana.com");
 const ethereumProvider = new ethers.JsonRpcProvider("https://cloudflare-eth.com");
 
-/* ------------------ TEMP STORAGE (DEMO ONLY) ------------------ */
 let generatedWallets = [];
 
-/* ------------------ Utils ------------------ */
 const maskData = (data) =>
   "•".repeat(Math.min(data.length, 20)) + (data.length > 20 ? "..." : "");
 
-/* ------------------ Wallet Generators ------------------ */
 
 // Solana
 const generateSolanaWallet = (seed, index) => {
@@ -65,9 +61,7 @@ const generateEthereumWallet = (mnemonic, index) => {
   };
 };
 
-/* ------------------ Routes ------------------ */
 
-// Generate wallets
 app.post("/api/generate-wallets", (req, res) => {
   const { mnemonic, count, type = "both" } = req.body;
 
@@ -90,7 +84,6 @@ app.post("/api/generate-wallets", (req, res) => {
 
     generatedWallets = wallets;
 
-    // Remove actual secrets before sending
     const safeWallets = wallets.map(
       ({ actualPrivateKey, actualSecretPhrase, ...rest }) => rest
     );
@@ -102,7 +95,7 @@ app.post("/api/generate-wallets", (req, res) => {
   }
 });
 
-// Reveal wallet data
+
 app.post("/api/reveal-wallet-data", (req, res) => {
   const { walletId, field } = req.body;
 
@@ -122,7 +115,7 @@ app.post("/api/reveal-wallet-data", (req, res) => {
   res.status(400).json({ error: "Invalid field" });
 });
 
-// Check address
+
 app.post("/api/check-address", async (req, res) => {
   const { address, type } = req.body;
 
