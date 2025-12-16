@@ -19,37 +19,39 @@ const WalletGenerator = () => {
 
   // Reveal sensitive data from backend
   const revealData = async (walletId, field) => {
-    try {
-      const res = await fetch("http://localhost:3000/api/reveal-wallet-data", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ walletId, field }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setRevealedData((prev) => ({
-          ...prev,
-          [`${walletId}-${field}`]: data.data,
-        }));
-      } else {
-        alert(data.error || "Failed to reveal data");
-      }
-    } catch (err) {
-      alert("Network error");
+  try {
+    const res = await fetch("http://localhost:3000/api/reveal-wallet-data", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ walletId, field }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      setRevealedData((prev) => ({
+        ...prev,
+        [`${walletId}-${field}`]: data.value, // <-- use `value` from backend
+      }));
+    } else {
+      alert(data.error || "Failed to reveal data");
     }
-  };
+  } catch (err) {
+    alert("Network error");
+  }
+};
+
 
   // Toggle visibility for a specific field of a wallet
   const toggleVisibility = (walletId, field) => {
-    const key = `${walletId}-${field}`;
-    setIsVisible((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
-    if (!isVisible[key] && !revealedData[key]) {
+  const key = `${walletId}-${field}`;
+  setIsVisible((prev) => {
+    const newVisible = !prev[key];
+    if (newVisible && !revealedData[key]) {
       revealData(walletId, field);
     }
-  };
+    return { ...prev, [key]: newVisible };
+  });
+};
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();

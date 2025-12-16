@@ -74,20 +74,13 @@ app.post("/api/generate-wallets", (req, res) => {
     const wallets = [];
 
     for (let i = 0; i < count; i++) {
-      if (type === "solana" || type === "both") {
-        wallets.push(generateSolanaWallet(seed, i));
-      }
-      if (type === "ethereum" || type === "both") {
-        wallets.push(generateEthereumWallet(mnemonic, i));
-      }
+      if (type === "solana" || type === "both") wallets.push(generateSolanaWallet(seed, i));
+      if (type === "ethereum" || type === "both") wallets.push(generateEthereumWallet(mnemonic, i));
     }
 
     generatedWallets = wallets;
 
-    const safeWallets = wallets.map(
-      ({ actualPrivateKey, actualSecretPhrase, ...rest }) => rest
-    );
-
+    const safeWallets = wallets.map(({ actualPrivateKey, actualSecretPhrase, ...rest }) => rest);
     res.json({ wallets: safeWallets });
   } catch (err) {
     console.error(err);
@@ -100,17 +93,10 @@ app.post("/api/reveal-wallet-data", (req, res) => {
   const { walletId, field } = req.body;
 
   const wallet = generatedWallets.find(w => w.walletId === walletId);
-  if (!wallet) {
-    return res.status(404).json({ error: "Wallet not found" });
-  }
+  if (!wallet) return res.status(404).json({ error: "Wallet not found" });
 
-  if (field === "privateKey") {
-    return res.json({ value: wallet.actualPrivateKey });
-  }
-
-  if (field === "secretPhrase") {
-    return res.json({ value: wallet.actualSecretPhrase });
-  }
+  if (field === "privateKey") return res.json({ value: wallet.actualPrivateKey });
+  if (field === "secretPhrase") return res.json({ value: wallet.actualSecretPhrase });
 
   res.status(400).json({ error: "Invalid field" });
 });
@@ -123,23 +109,13 @@ app.post("/api/check-address", async (req, res) => {
     if (type === "solana") {
       const pubKey = new PublicKey(address);
       const balance = await solanaConnection.getBalance(pubKey);
-
-      return res.json({
-        address,
-        balance: balance / 1e9,
-      });
+      return res.json({ address, balance: balance / 1e9 });
     }
 
     if (type === "ethereum") {
-      if (!ethers.isAddress(address)) {
-        return res.status(400).json({ error: "Invalid ETH address" });
-      }
-
+      if (!ethers.isAddress(address)) return res.status(400).json({ error: "Invalid ETH address" });
       const balance = await ethereumProvider.getBalance(address);
-      return res.json({
-        address,
-        balance: ethers.formatEther(balance),
-      });
+      return res.json({ address, balance: ethers.formatEther(balance) });
     }
 
     res.status(400).json({ error: "Invalid type" });
@@ -148,6 +124,4 @@ app.post("/api/check-address", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Backend running at http://localhost:${PORT}`);
-});
+app.listen(PORT, () => console.log(`Backend running at http://localhost:${PORT}`));
