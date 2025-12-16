@@ -1,97 +1,160 @@
 import express from "express";
-import nacl from "tweetnacl";
-import { generateMnemonic, mnemonicToSeedSync } from "bip39";
-import pkg from "@solana/web3.js";
-const { Keypair } = pkg;
-import { derivePath } from "ed25519-hd-key";
-import dotenv from "dotenv";
 import cors from "cors";
+import dotenv from "dotenv";
+
+import { mnemonicToSeedSync } from "bip39";
+import { derivePath } from "ed25519-hd-key";
+import { Keypair, Connection, PublicKey } from "@solana/web3.js";
+import { ethers } from "ethers";
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
 
-// Store generated wallets temporarily (in production, use a proper database)
+/* ------------------ Connections ------------------ */
+const solanaConnection = new Connection("https://api.mainnet-beta.solana.com");
+const ethereumProvider = new ethers.JsonRpcProvider("https://cloudflare-eth.com");
+
+/* ------------------ TEMP STORAGE (DEMO ONLY) ------------------ */
 let generatedWallets = [];
 
-// Mask sensitive data
-const maskData = (data) => {
-  return "•".repeat(Math.min(data.length, 20)) + (data.length > 20 ? "..." : "");
+/* ------------------ Utils ------------------ */
+const maskData = (data) =>
+  "•".repeat(Math.min(data.length, 20)) + (data.length > 20 ? "..." : "");
+
+/* ------------------ Wallet Generators ------------------ */
+
+// Solana
+const generateSolanaWallet = (seed, index) => {
+  const path = `m/44'/501'/${index}'/0'`;
+  const derivedSeed = derivePath(path, seed.toString("hex")).key;
+  const keypair = Keypair.fromSeed(derivedSeed);
+
+  const privateKey = Buffer.from(keypair.secretKey).toString("hex");
+
+  return {
+    walletId: `solana-${Date.now()}-${index}`,
+    walletName: `Solana Wallet ${index + 1}`,
+    type: "solana",
+    publicKey: keypair.publicKey.toBase58(),
+    privateKey: maskData(privateKey),
+    secretPhrase: maskData(seed.toString("hex")),
+    actualPrivateKey: privateKey,
+    actualSecretPhrase: seed.toString("hex"),
+  };
 };
 
-// POST /api/generate-wallets
-// Body: { mnemonic: string, count: number }
+// Ethereum
+const generateEthereumWallet = (mnemonic, index) => {
+  const path = `m/44'/60'/0'/0/${index}`;
+  const wallet = ethers.HDNodeWallet.fromPhrase(mnemonic, path);
+
+  return {
+    walletId: `ethereum-${Date.now()}-${index}`,
+    walletName: `Ethereum Wallet ${index + 1}`,
+    type: "ethereum",
+    publicKey: wallet.address,
+    privateKey: maskData(wallet.privateKey),
+    secretPhrase: maskData(mnemonic),
+    actualPrivateKey: wallet.privateKey,
+    actualSecretPhrase: mnemonic,
+  };
+};
+
+/* ------------------ Routes ------------------ */
+
+// Generate wallets
 app.post("/api/generate-wallets", (req, res) => {
-  const { mnemonic, count } = req.body;
+  const { mnemonic, count, type = "both" } = req.body;
+
   if (!mnemonic || !count || count < 1) {
     return res.status(400).json({ error: "Mnemonic and count are required." });
   }
+
   try {
     const seed = mnemonicToSeedSync(mnemonic);
     const wallets = [];
+
     for (let i = 0; i < count; i++) {
-      const path = `m/44'/501'/${i}'/0'`;
-      const derivedSeed = derivePath(path, seed.toString("hex")).key;
-      const keypair = Keypair.fromSeed(derivedSeed);
-      const publicKey = keypair.publicKey.toBase58();
-      const privateKey = Buffer.from(keypair.secretKey).toString("hex");
-      
-      wallets.push({
-        walletName: `Wallet ${i + 1}`,
-        publicKey,
-        privateKey: maskData(privateKey), // Masked by default
-        secretPhrase: maskData(mnemonic), // Masked by default
-        walletId: `${Date.now()}-${i}` // Unique ID for revealing data
-      });
+      if (type === "solana" || type === "both") {
+        wallets.push(generateSolanaWallet(seed, i));
+      }
+      if (type === "ethereum" || type === "both") {
+        wallets.push(generateEthereumWallet(mnemonic, i));
+      }
     }
-    
-    // Store the actual sensitive data temporarily
-    generatedWallets = wallets.map((w, i) => ({
-      ...w,
-      actualPrivateKey: Buffer.from(Keypair.fromSeed(derivePath(`m/44'/501'/${i}'/0'`, seed.toString("hex")).key).secretKey).toString("hex"),
-      actualSecretPhrase: mnemonic
-    }));
-    
-    return res.json({ wallets });
+
+    generatedWallets = wallets;
+
+    // Remove actual secrets before sending
+    const safeWallets = wallets.map(
+      ({ actualPrivateKey, actualSecretPhrase, ...rest }) => rest
+    );
+
+    res.json({ wallets: safeWallets });
   } catch (err) {
-    return res.status(500).json({ error: "Failed to generate wallets." });
+    console.error(err);
+    res.status(500).json({ error: "Failed to generate wallets" });
   }
 });
 
-// POST /api/reveal-wallet-data
-// Body: { walletId: string, field: 'privateKey' | 'secretPhrase' }
+// Reveal wallet data
 app.post("/api/reveal-wallet-data", (req, res) => {
   const { walletId, field } = req.body;
-  
-  if (!walletId || !field) {
-    return res.status(400).json({ error: "Wallet ID and field are required." });
-  }
-  
+
   const wallet = generatedWallets.find(w => w.walletId === walletId);
   if (!wallet) {
-    return res.status(404).json({ error: "Wallet not found." });
+    return res.status(404).json({ error: "Wallet not found" });
   }
-  
-  let revealedData;
-  if (field === 'privateKey') {
-    revealedData = wallet.actualPrivateKey;
-  } else if (field === 'secretPhrase') {
-    revealedData = wallet.actualSecretPhrase;
-  } else {
-    return res.status(400).json({ error: "Invalid field. Use 'privateKey' or 'secretPhrase'." });
+
+  if (field === "privateKey") {
+    return res.json({ value: wallet.actualPrivateKey });
   }
-  
-  return res.json({ 
-    walletId, 
-    field, 
-    data: revealedData 
-  });
+
+  if (field === "secretPhrase") {
+    return res.json({ value: wallet.actualSecretPhrase });
+  }
+
+  res.status(400).json({ error: "Invalid field" });
+});
+
+// Check address
+app.post("/api/check-address", async (req, res) => {
+  const { address, type } = req.body;
+
+  try {
+    if (type === "solana") {
+      const pubKey = new PublicKey(address);
+      const balance = await solanaConnection.getBalance(pubKey);
+
+      return res.json({
+        address,
+        balance: balance / 1e9,
+      });
+    }
+
+    if (type === "ethereum") {
+      if (!ethers.isAddress(address)) {
+        return res.status(400).json({ error: "Invalid ETH address" });
+      }
+
+      const balance = await ethereumProvider.getBalance(address);
+      return res.json({
+        address,
+        balance: ethers.formatEther(balance),
+      });
+    }
+
+    res.status(400).json({ error: "Invalid type" });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to check address" });
+  }
 });
 
 app.listen(PORT, () => {
-  console.log(`Backend 1 is running on http://localhost:${PORT}`);
+  console.log(`Backend running at http://localhost:${PORT}`);
 });
