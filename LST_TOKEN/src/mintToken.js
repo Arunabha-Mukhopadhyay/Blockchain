@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import {getOrCreateAssociatedTokenAccount, mintTo} from '@solana/spl-token';
+import {ASSOCIATED_TOKEN_PROGRAM_ID, getOrCreateAssociatedTokenAccount, mintTo, TOKEN_PROGRAM_ID} from '@solana/spl-token';
 import { Connection, Keypair, PublicKey } from '@solana/web3.js';
 import { TOKEN_MINT_ADDRESS } from './address.js'
 import bs58 from 'bs58'
@@ -24,7 +24,9 @@ export const mintTokens = async (fromAddress, amount) => {
     connection,
     payer,
     TOKEN_MINT_ADDRESS,
-    new PublicKey(fromAddress)
+    new PublicKey(fromAddress),
+    TOKEN_PROGRAM_ID,
+    ASSOCIATED_TOKEN_PROGRAM_ID
   )
 
   await mintTo(
@@ -33,7 +35,8 @@ export const mintTokens = async (fromAddress, amount) => {
     TOKEN_MINT_ADDRESS,
     recipientATA.address,
     payer,
-    amount
+    amount,
+    TOKEN_PROGRAM_ID
   )
 
   console.log(`Minted ${amount} tokens to ${recipientATA.address.toString()}`);
