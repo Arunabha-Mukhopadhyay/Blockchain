@@ -8,3 +8,5 @@ npm install \
 @solana/wallet-adapter-wallets \
 @solana/web3.js
 
+// to isntall solana token library:
+npm install @solana/spl-token
