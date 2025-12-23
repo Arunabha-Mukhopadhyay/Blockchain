@@ -1,7 +1,7 @@
 const dotenv = require('dotenv')
 const express = require('express')
 const cors = require('cors')
-// const { users } = require('./model.js')
+const { users } = require('./model.js')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const bs58 = require('bs58');
@@ -15,83 +15,83 @@ const JWT_SECRET = "1234"
 
 dotenv.config();
 
-// app.post('/api/v1/signup',async (req,res)=>{
-//   let username = req.body.username;
-//   let password = bcrypt.hashSync(req.body.password, 10);
+app.post('/api/v1/signup',async (req,res)=>{
+  let username = req.body.username;
+  let password = bcrypt.hashSync(req.body.password, 10);
 
-//   if(!username || !password){
-//     return res.status(400).json({
-//       message:"username and password are required"
-//     })
-//   }
+  if(!username || !password){
+    return res.status(400).json({
+      message:"username and password are required"
+    })
+  }
 
 
-//   const existingUser = await users.findOne({
-//     username:username
-//   })
+  const existingUser = await users.findOne({
+    username:username
+  })
 
-//   if(existingUser){
-//     return res.status(400).json({
-//       message:"username already exists"
-//       })
-//     }
+  if(existingUser){
+    return res.status(400).json({
+      message:"username already exists"
+      })
+    }
 
-//   const keypair = Keypair.generate();
+  const keypair = Keypair.generate();
 
-//   await users.create({
-//     username: username,
-//     password: password,
-//     privateKey: bs58.default.encode(keypair.secretKey),
-//     publicKey: keypair.publicKey.toString(),
-//   }).then(() => {
-//     res.json({
-//       message: `User created successfully,public key is:${keypair.publicKey.toString()}`,
-//     })
-//   })
-// })
+  await users.create({
+    username: username,
+    password: password,
+    privateKey: bs58.default.encode(keypair.secretKey),
+    publicKey: keypair.publicKey.toString(),
+  }).then(() => {
+    res.json({
+      message: `User created successfully,public key is:${keypair.publicKey.toString()}`,
+    })
+  })
+})
 
   
 
-// app.post('/api/v1/signin', async (req,res)=>{
-//   let username = req.body.username;
-//   let passwordString = req.body.password;
+app.post('/api/v1/signin', async (req,res)=>{
+  let username = req.body.username;
+  let passwordString = req.body.password;
 
-//   if(!username || !passwordString){
-//     return res.status(400).json({
-//       message:"username and password are required"
-//     })
-//   }
+  if(!username || !passwordString){
+    return res.status(400).json({
+      message:"username and password are required"
+    })
+  }
 
-//   const existingUser = await users.findOne({
-//     username: username,
-//   })
+  const existingUser = await users.findOne({
+    username: username,
+  })
 
-//   const passMatch = existingUser? bcrypt.compareSync(passwordString, existingUser.password):false;
+  const passMatch = existingUser? bcrypt.compareSync(passwordString, existingUser.password):false;
 
-//   if(!passMatch){
-//     return res.status(400).json({
-//       message:"Invalid username or password"
-//     })
-//   }
+  if(!passMatch){
+    return res.status(400).json({
+      message:"Invalid username or password"
+    })
+  }
 
-//   if(existingUser){
-//     const token = jwt.sign({
-//       id: existingUser._id,
-//       username: existingUser.username
-//     },JWT_SECRET,{
-//       expiresIn: '1h'
-//     })
+  if(existingUser){
+    const token = jwt.sign({
+      id: existingUser._id,
+      username: existingUser.username
+    },JWT_SECRET,{
+      expiresIn: '1h'
+    })
 
-//     return res.json({
-//       message: "User signed in successfully",
-//       token: token
-//     })
-//   } else{
-//     return res.status(400).json({
-//       message:"Invalid username or password"
-//     })
-//   }
-// })
+    return res.json({
+      message: "User signed in successfully",
+      token: token
+    })
+  } else{
+    return res.status(400).json({
+      message:"Invalid username or password"
+    })
+  }
+})
 
 
 
