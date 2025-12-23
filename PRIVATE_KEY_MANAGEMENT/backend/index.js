@@ -94,7 +94,7 @@ app.post('/api/v1/signin', async (req,res)=>{
 })
 
 
-
+// still needto implement more secure way to store the private key: eithe salting or MPC
 
 app.post("/api/v1/txn/sign",async (req,res)=>{
   const serialTransaction = req.body.message;
