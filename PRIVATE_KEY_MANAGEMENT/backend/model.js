@@ -9,4 +9,6 @@ const keySchema = new mongoose.Schema({
   publicKey: String
 })
 
-export const users = mongoose.model("users", keySchema);
+const users = mongoose.model('users', keySchema);
+
+module.exports = { users };

@@ -2,15 +2,15 @@ import {Transaction,PublicKey,LAMPORTS_PER_SOL, Connection,SystemProgram} from '
 import axios from 'axios'
 
 function App() {
-  const connection = new Connection('https://api.mainnet-beta.solana.com');
-  const frompublicKey = new PublicKey();
-  const toPublicKey = new PublicKey();
+  const connection = new Connection('https://api.devnet.solana.com');
+  const frompublicKey = new PublicKey("BoQmnhN4yS9SgDM7P5WFS8BRFcop2taybtPhyoxMi9Z7");
+  const toPublicKey = new PublicKey("EwwpLgVrBiQ2xUoLYTiMohBV2Ut3CoJky6jzKtbMxPHZ");
 
   async function sendSol(){
     const ix = SystemProgram.transfer({
       fromPubkey: frompublicKey,
       toPubkey: toPublicKey,
-      lamports: 1000 * LAMPORTS_PER_SOL
+      lamports: 0.01 * LAMPORTS_PER_SOL
     })
 
     const tx = new Transaction().add(ix);
