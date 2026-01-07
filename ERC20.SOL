@@ -1,0 +1,111 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract TokenCoin is ERC20, Ownable {
+
+    mapping (address =>uint) airdrop;
+
+    constructor() ERC20("Arun", "ARU") Ownable(msg.sender) {
+        _mint(msg.sender, 1000 * 10**decimals());
+
+    }   
+
+// owner minting tokens by paying ETH:
+    // function Airdrop() payable external onlyOwner{
+    //     require(msg.value > 0, "Send ETH");
+
+    //     uint tokensMint = (msg.value * 1000 * 10**decimals()) / 1 ether;
+
+    //     _mint(msg.sender,tokensMint);
+    // }
+
+//When ANY address sends 1 ETH:
+    receive() external payable {
+        require(msg.value > 0, "Send ETH");
+
+        uint256 tokensMint =
+            (msg.value * 1000 * 10**decimals()) / 1 ether;
+
+        _mint(msg.sender, tokensMint);
+    }
+
+    function mintTo(address account, uint256 value) external onlyOwner {
+        _mint(account, value);
+    }
+
+}
+
+
+
+
+
+
+/// WITHOUT USING THE OPENZEPPELIN CONTRACTS:
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract ARUNToken {
+    address public owner;
+    uint public TotalAmount;
+    mapping (address => uint) public balances;
+    //allowances:
+    mapping (address => mapping (address =>uint)) public allowances;
+
+    constructor(){
+        owner = msg.sender;
+    }
+
+    modifier onlyowner(){
+        require(owner == msg.sender);
+        _;
+    }
+
+    event burn(uint _amount);
+
+    function approve(address _spender, uint256 _value) public returns (bool success){
+        allowances[msg.sender][_spender] = _value;
+        return true;
+    }
+
+    function transferFrom(address _from, address _to, uint256 _value) public returns (bool success){
+        uint allow = allowances[_from][msg.sender];
+        require(allow >= _value);
+
+        uint balance = balances[_from];
+        require(balance >= _value);
+        balances[_from] -= _value;
+        balances[_to] += _value;
+        allow -= _value;
+
+        return true;
+    }
+
+
+    function mint(uint _amount) public onlyowner{
+        balances[owner] += _amount;
+        TotalAmount += _amount;
+    }
+
+    function mintTo(address _to,uint _amount)public onlyowner{
+        balances[_to] += _amount;
+        TotalAmount += _amount;
+    }
+
+    function Transfer(address _to, uint amount)public{
+        uint existingamount = balances[msg.sender];
+        require(existingamount >= amount);
+        balances[msg.sender] -= amount;
+        balances[_to] += amount;
+    }
+
+    function BurnTokens(uint _amount)public{
+        require(balances[msg.sender] >= _amount,"you dont have enough balance");
+        balances[msg.sender] -= _amount;
+        uint totalSupply = TotalAmount;
+        totalSupply -= _amount;
+        emit burn(_amount);
+    }
+}
