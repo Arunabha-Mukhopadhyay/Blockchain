@@ -77,4 +77,14 @@ contract ArunCoinTest is Test {
     emit Transfer(address(this),address(0x65dD388D90920df649c2740Fb58cAc89b5C23D1c),100);
     arunCoin.transfer(address(0x65dD388D90920df649c2740Fb58cAc89b5C23D1c),100);
   }
+
+  function test_TransferFrom_EmitsEvent() public {
+    arunCoin.mint(address(this), 1000);
+    arunCoin.approve(address(0x65dD388D90920df649c2740Fb58cAc89b5C23D1c), 300);
+
+    vm.prank(address(0x65dD388D90920df649c2740Fb58cAc89b5C23D1c));
+    vm.expectEmit(true, true, false, true);
+    emit Transfer(address(this), address(0x65dD388D90920df649c2740Fb58cAc89b5C23D1c), 200);
+    arunCoin.transferFrom(address(this), address(0x65dD388D90920df649c2740Fb58cAc89b5C23D1c), 200);
+  }
 }
