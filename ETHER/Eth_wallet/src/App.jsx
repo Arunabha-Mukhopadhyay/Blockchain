@@ -1,8 +1,10 @@
 import React from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { http, createConfig, WagmiProvider, useConnect, useAccount, useDisconnect, useBalance, useSendTransaction } from 'wagmi'
+import { http, createConfig, WagmiProvider, useConnect, useAccount, useDisconnect, useBalance, useSendTransaction, useReadContract } from 'wagmi'
 import { mainnet } from 'wagmi/chains'
 import { injected, metaMask, safe, walletConnect } from 'wagmi/connectors'
+import { getBalance } from 'viem/actions'
+import TotalBalances from './TotalBalances.jsx'
 
 const queryClient = new QueryClient();
 
@@ -27,6 +29,7 @@ function App() {
         <WalletConnector />
         <EthSend />
         <Address />
+        <TotalBalances/>
       </QueryClientProvider>
     </WagmiProvider>
   )
@@ -36,17 +39,27 @@ function Address() {
   const {address} = useAccount()
   const {disconnect} = useDisconnect();
 
-  const {balance} = useBalance({
+  const {data:ethBalance} = useReadContract({
+    address:"0x0f1D1ca5b5Ac85DcBB0319bd8c083BFa0691F107",
+    abi:[
+      {"constant":true,"inputs":[{"name":"who","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}
+    ],
+    functionName:'balanceOf',
+    args:[address],
+
+  })
+  const {data:balance,isLoading,error} = useBalance({
     address: address,
   })
 
-  return (
-    <>
-      <div>Your address: {address}</div>
-      <div>Your balance: {balance?.data?.formatted} {balance?.symbol}</div>
-      <button onClick={()=>disconnect()}>Disconnected</button>
-    </>
-  )
+return (
+  <>
+    <div>Your address: {address}</div>
+    <div>Your balance: {isLoading ? 'Loading...' : error ? 'Error fetching balance' : `${balance?.formatted} ${balance?.symbol}`}</div>
+    <div>Your contract balance: {isLoading ? 'Loading...' : error ? 'Error fetching balance' : `${ethBalance?.toString()}`}</div>
+    <button onClick={()=>disconnect()}>Disconnected</button>
+  </>
+)
   
 }
 
