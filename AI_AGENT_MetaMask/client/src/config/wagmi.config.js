@@ -1,17 +1,17 @@
 import { createConfig, http } from "wagmi";
 import { metaMask } from "wagmi/connectors";
-import { lineaSepolia } from "wagmi/chains";
+import { lineaSepolia, sepolia } from "wagmi/chains";
 import { createPublicClient } from "viem";
 
 export const publicClient = createPublicClient({
-  chain: lineaSepolia,
+  chain: sepolia,
   transport: http(),
 });
 
 export const wagmiConfig = createConfig({
-  chains: [lineaSepolia],
+  chains: [sepolia],
   connectors: [metaMask()],
   transports: {
-    [lineaSepolia.id]: http(),
+    [sepolia.id]: http(),
   },
 });

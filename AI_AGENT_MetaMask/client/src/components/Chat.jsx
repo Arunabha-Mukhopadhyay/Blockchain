@@ -1,10 +1,12 @@
 import React from 'react'
 import { useState } from 'react'
-import { useAccount, useTransaction } from 'wagmi'
+import { useAccount, useTransaction,useSendTransaction } from 'wagmi'
+import { parseEther } from "viem";
+
 
 function Chat() {
   const {address} = useAccount();
-  const {sendTransaction} = useTransaction();
+  const {sendTransaction} = useSendTransaction();
 
   const[messages,setMessages] = useState([
     {
@@ -21,21 +23,24 @@ function Chat() {
     setMessages(updatedMessages);
     setInput("");
 
-    const response = await fetch("",{
+    const response = await fetch("http://localhost:3001/chat",{
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        messages: input,
+        message: input,
         address,
       }), 
     })
 
+    if (!response.ok) {
+      throw new Error("Server error");
+  }
+
     const data = await response.json();
     setMessages((m) => [...m, { role: "ai", content: data.text }]);
 
-    // If tx :
     if (data.tx) {
       sendTransaction({
         to: data.tx.to,
