@@ -1,6 +1,6 @@
 import React from 'react'
 import { useState } from 'react'
-import { useAccount, useTransaction,useSendTransaction } from 'wagmi'
+import { useAccount,useSendTransaction } from 'wagmi'
 import { parseEther } from "viem";
 
 
@@ -10,7 +10,7 @@ function Chat() {
 
   const[messages,setMessages] = useState([
     {
-      role:"AI",
+      role:"ai",
       content:`You have connected your wallet successfully. Your wallet address is ${address}`
     }
   ]);
@@ -23,7 +23,9 @@ function Chat() {
     setMessages(updatedMessages);
     setInput("");
 
-    const response = await fetch("http://localhost:3001/chat",{
+    const ROUTE = import.meta.env.VITE_ROUTE || "http://localhost:3001";
+
+    const response = await fetch(`${ROUTE}/chat`,{
       method: "POST",
       headers: {
         "Content-Type": "application/json",
