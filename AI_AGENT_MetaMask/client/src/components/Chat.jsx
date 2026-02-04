@@ -23,9 +23,12 @@ function Chat() {
     setMessages(updatedMessages);
     setInput("");
 
-    const ROUTE = import.meta.env.VITE_ROUTE || "http://localhost:3001";
+const API_BASE =
+  import.meta.env.VITE_API_URL || "http://backend:3001";
 
-    const response = await fetch(`${ROUTE}/chat`,{
+  const BASE_URL = import.meta.env.VITE_ROUTE;
+
+    const response = await fetch(`${API_BASE}/chat`,{
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -75,3 +78,5 @@ function Chat() {
 }
 
 export default Chat
+
+

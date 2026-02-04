@@ -7,7 +7,13 @@ import { sepolia } from "viem/chains";
 dotenv.config();
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: true, 
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 
 const PORT = process.env.PORT || 3001;
@@ -15,7 +21,7 @@ const GROK_API_KEY = process.env.GROK_API;
 
 const publicClient = createPublicClient({
   chain: sepolia,
-  transport: http(),
+  transport: http('https://eth-sepolia.g.alchemy.com/v2/HXvqopb56JiSzfHc9WqgC'),
 });
 
 
