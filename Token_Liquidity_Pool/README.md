@@ -1,13 +1,38 @@
-# React + Vite
+# Token Liquidity Pool - Solana AMM
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A decentralized liquidity pool implementation for token swaps on Solana using the Raydium AMM protocol. This project enables users to create pools, add liquidity, and swap tokens with minimal slippage.
 
-Currently, two official plugins are available:
+## Project Structure
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```
+Token_Liquidity_Pool/
+├── src/
+│   ├── App.jsx              # Main application component
+    ├── main.jsx             # Application entry point
+    ├── index.css            # Global styles
+    ├── assets/              # Static assets
+    └── components/
+        ├── CreateToken.jsx  # Token creation component
+        ├── CpPool.jsx       # Liquidity pool component
+        └── ...              # Other utility components
+├── public/                  # Static files
+├── index.html               # HTML template
+├── package.json             # Dependencies
+├── vite.config.js           # Vite configuration
+└── eslint.config.js         # ESLint configuration
+```
 
-## React Compiler
+## Features
+
+- **Liquidity Pool Creation**: Create custom token trading pairs
+- **Add Liquidity**: Deposit tokens to earn trading fees
+- **Remove Liquidity**: Withdraw tokens and claim rewards
+- **Token Swaps**: Execute trades with minimal slippage
+- **Price Discovery**: Real-time pricing based on pool reserves
+- **Constant Product Pricing**: AMM formula (x * y = k)
+- **LP Token Minting**: Receive LP tokens representing pool share
+- **Fee Collection**: Earn 0.25% on all trades
+- **Multi-token Support**: Swap any SPL token pairs
 
 The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 

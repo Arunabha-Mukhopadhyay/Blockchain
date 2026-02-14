@@ -1,13 +1,34 @@
-# React + Vite
+# PDA (Program Derived Address) - Solana Program
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A comprehensive Solana program demonstrating Program Derived Addresses (PDA) functionality. This project teaches how to use PDAs for deterministic account generation and state management in Solana smart contracts.
 
-Currently, two official plugins are available:
+## Project Structure
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```
+pda/
+└── PDA/
+    ├── src/
+    │   ├── App.jsx          # Main React application
+    │   ├── main.jsx         # Application entry point
+    │   ├── index.css        # Styling
+    │   ├── components/      # React components for PDA operations
+    │   └── assets/          # Static assets
+    ├── public/              # Public static files
+    ├── index.html           # HTML template
+    ├── package.json         # Dependencies
+    ├── vite.config.js       # Vite configuration
+    └── eslint.config.js     # Code linting rules
+```
 
-## React Compiler
+## Features
+
+- **PDA Generation**: Create deterministic addresses using program and seeds
+- **Account State Management**: Store and retrieve data using PDAs
+- **Wallet Integration**: Connect Solana wallets (Phantom, Solflare, etc.)
+- **Transaction Broadcasting**: Submit transactions to Solana network
+- **Real-time Updates**: Monitor state changes across transactions
+- **Multi-Network Support**: Connect to devnet, testnet, or mainnet
+- **Interactive UI**: User-friendly interface for PDA operations
 
 The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 

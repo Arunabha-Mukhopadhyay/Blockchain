@@ -1,13 +1,34 @@
-# React + Vite
+# ETHER Wallet Application
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern web-based Ethereum wallet built with React and Vite. This application provides a user-friendly interface for managing Ethereum assets, checking wallet balances, and performing blockchain transactions.
 
-Currently, two official plugins are available:
+## Project Structure
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```
+ETHER/
+└── Eth_wallet/
+    ├── src/
+    │   ├── App.jsx          # Main application component
+    │   ├── main.jsx         # Application entry point
+    │   ├── index.css        # Global styles
+    │   ├── assets/          # Static assets and images
+    │   └── components/      # Reusable React components
+    ├── public/              # Static files served directly
+    ├── index.html           # HTML template
+    ├── package.json         # Dependencies and scripts
+    ├── vite.config.js       # Vite configuration
+    └── eslint.config.js     # ESLint rules
+```
 
-## React Compiler
+## Features
+
+- **Wallet Connection**: Seamless integration with Web3 wallets (MetaMask, WalletConnect, etc.)
+- **Balance Display**: Real-time display of ETH and token balances
+- **Transaction History**: View recent transactions and transaction details
+- **Network Switching**: Support for multiple Ethereum networks
+- **Responsive Design**: Mobile-friendly interface
+- **Gas Estimation**: Display estimated gas fees for transactions
+- **ENS Support**: Domain name resolution for addresses
 
 The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 

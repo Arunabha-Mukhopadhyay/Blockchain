@@ -1,12 +1,35 @@
-# <h1 align="center"> Forge Template </h1>
+# Bridge Locking - Cross-Chain Token Bridge
 
-**Template repository for getting started quickly with Foundry projects**
+A Solidity-based implementation of a cross-chain token bridge with locking mechanism. This project enables secure transfer of ERC20 tokens between different blockchain networks through a lock-and-mint architecture.
 
-![Github Actions](https://github.com/foundry-rs/forge-template/workflows/CI/badge.svg)
+## Project Structure
 
-## Getting Started
+```
+Bridge_locking/
+├── src/
+│   ├── BridgeETH.sol         # Bridge contract for Ethereum
+│   ├── BridgeSepolia.sol     # Bridge contract for Sepolia testnet
+│   ├── Contract.sol          # Base contract utilities
+│   ├── LockingEth.sol        # Locking mechanism for ETH
+│   ├── Shingen.sol           # Custom ERC20 token contract
+│   └── WShingen.sol          # Wrapped Shingen token
+├── test/
+│   └── Contract.t.sol        # Test suite using Foundry
+├── lib/
+│   └── forge-std/            # Foundry standard library
+├── foundry.toml              # Foundry configuration
+├── package.json              # Dependencies (OpenZeppelin)
+└── remapping.txt             # Import remappings
+```
 
-Click "Use this template" on [GitHub](https://github.com/foundry-rs/forge-template) to create a new repository with this repo as the initial state.
+## Features
+
+- **Cross-Chain Locking**: Secure token locking mechanism on source chain
+- **Minting on Destination**: Automatic token minting on destination chain
+- **Owner-Based Control**: Secure owner management for bridge operations
+- **ERC20 Compatibility**: Full ERC20 standard compliance
+- **Multiple Chain Support**: Ethereum, Sepolia, and custom chain integration
+- **Event Logging**: Comprehensive event tracking for all operations
 
 Or, if your repo already exists, run:
 ```sh
