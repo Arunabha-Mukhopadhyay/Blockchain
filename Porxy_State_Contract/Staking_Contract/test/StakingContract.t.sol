@@ -36,4 +36,30 @@ contract StakingContractTest is Test {
       vm.expectRevert("Unstaking amount exceeds stake amount");
       stakingContract.unstake(300);
     }
+
+    function testGetReward() public{
+      uint value = 1 ether;
+      vm.deal(0x65dD388D90920df649c2740Fb58cAc89b5C23D1c, 10 ether);
+      vm.startPrank(0x65dD388D90920df649c2740Fb58cAc89b5C23D1c);
+      stakingContract.stake{value:value}();
+
+      vm.warp(block.timestamp + 1);
+      //console.log(block.timestamp);
+      uint rewards = stakingContract.getReward(0x65dD388D90920df649c2740Fb58cAc89b5C23D1c);
+      //console.log(rewards);
+      assert(rewards == 1 ether);
+    }
+
+
+    function testGetRewardAfterUnstake() public{
+      uint value = 2 ether;
+      vm.deal(0x65dD388D90920df649c2740Fb58cAc89b5C23D1c, 10 ether);
+      vm.startPrank(0x65dD388D90920df649c2740Fb58cAc89b5C23D1c);
+      stakingContract.stake{value:value}();
+      vm.warp(block.timestamp + 1);
+      stakingContract.unstake( 1 ether);
+      uint rewards = stakingContract.getReward(0x65dD388D90920df649c2740Fb58cAc89b5C23D1c);
+      assert(rewards == 2 ether);
+    }
+
 }
